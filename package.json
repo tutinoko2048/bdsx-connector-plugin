@@ -1,10 +1,10 @@
 {
-    "name": "@bdsx/script-connector",
+    "name": "@bdsx/bdsx-connector",
     "version": "1.0.1",
     "description": "This is a plugin to communicate with ScriptAPI",
     "main": "index.js",
     "keywords": [],
-    "author": "karikera <karikera3@hotmail.com> (https://rua.kr/)",
+    "author": "tutinoko2048",
     "license": "ISC",
     "bdsxPlugin": true,
     "scripts": {
@@ -13,10 +13,7 @@
         "prepare": "tsc || exit 0"
     },
     "devDependencies": {
-        "bdsx": "file:../bdsx",
-        "@types/uuid": "^9.0.8"
+        "bdsx": "file:../bdsx"
     },
-    "dependencies": {
-        "uuid": "^9.0.1"
-    }
+    "dependencies": {}
 }
