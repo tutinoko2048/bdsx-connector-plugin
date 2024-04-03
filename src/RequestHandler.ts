@@ -26,15 +26,22 @@ export enum RequestType {
 }
 
 export interface RequestPayload {
-  header: {
-    requestId: string;
-    type: RequestType
-  };
+  requestId: string;
+  type: RequestType.Request
   data: any;
 }
 
+export interface ResponsePayload {
+  requestId: string;
+  type: RequestType.Response
+  status: number;
+  data: any;
+}
+
+export type Payload = RequestPayload | ResponsePayload;
+
 export class RequestHandler extends EventEmitter {
-  private pendingRequests = new Map<string, (payload: RequestPayload) => void>();
+  private pendingRequests = new Map<string, (payload: ResponsePayload) => void>();
   private pendingTimeouts = new Set<NodeJS.Timeout>();
   constructor() {
     super();
@@ -44,10 +51,8 @@ export class RequestHandler extends EventEmitter {
 
   public send(request: ScriptEventRequest): Promise<ScriptEventResponse> {
     const payload: RequestPayload = {
-      header: {
-        requestId: request.id,
-        type: RequestType.Request
-      },
+      requestId: request.id,
+      type: RequestType.Request,
       data: request.data
     }
     this.emit('send', payload);
@@ -72,21 +77,21 @@ export class RequestHandler extends EventEmitter {
   }
 
   private onRequest(rawRequest: string) {
-    let payload: RequestPayload | undefined;
+    let payload: Payload | undefined;
     try {
       payload = JSON.parse(rawRequest);
     } catch {}
     if (!payload) return console.error(`[script-connector] Failed to parse request.\ndata:`, rawRequest);
 
-    if (payload.header.type === RequestType.Request) {
-      this.emit('receive', payload);
+    if (payload.type === RequestType.Request) {
+      this.emit('request', payload);
 
-    } else if (payload.header.type === RequestType.Response) {
-      const callback = this.pendingRequests.get(payload.header.requestId);
+    } else if (payload.type === RequestType.Response) {
+      const callback = this.pendingRequests.get(payload.requestId);
       if (!callback) return console.error(`[script-connector] Unknown response.\ndata:`, rawRequest);
       callback(payload);
     } else {
-      console.error('[script-connector] unknown request type', payload.header.type);
+      console.error('[script-connector] unknown request type', (payload as any).type);
     }
   }
 
@@ -103,7 +108,8 @@ export class RequestHandler extends EventEmitter {
 
 export interface EventTypeMap {
   send: [RequestPayload];
-  receive: [RequestPayload];
+  request: [RequestPayload];
+  response: [ResponsePayload];
 }
 
 export interface RequestHandler {

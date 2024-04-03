@@ -1,11 +1,13 @@
-import type { RequestPayload } from './RequestHandler';
+import type { ResponsePayload } from './RequestHandler';
 import type { ScriptEventRequest } from './ScriptEventRequest';
 
 export class ScriptEventResponse {
-  public request: ScriptEventRequest;
-  public data: any;
-  constructor(payload: RequestPayload, request: ScriptEventRequest) {
+  public readonly request: ScriptEventRequest;
+  public readonly data: any;
+  public readonly status: number;
+  constructor(payload: ResponsePayload, request: ScriptEventRequest) {
     this.request = request;
     this.data = payload.data;
+    this.status = payload.status;
   }
 }
